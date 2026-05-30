@@ -1,0 +1,225 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API de Control de Asistencias - Grupo 7",
+        "description": "CRUD de asistencias para el Logro B",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://127.0.0.1:8000/api",
+            "description": "Servidor Local de API"
+        }
+    ],
+    "paths": {
+        "/asistencias": {
+            "get": {
+                "tags": [
+                    "Asistencias"
+                ],
+                "summary": "Obtener todas las asistencias",
+                "operationId": "1b350fe1fe3e60167e08dc4c356ef2ce",
+                "responses": {
+                    "200": {
+                        "description": "Lista de asistencias recuperada con éxito"
+                    },
+                    "500": {
+                        "description": "Error interno del servidor al obtener los datos"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Asistencias"
+                ],
+                "summary": "Crear una nueva asistencia",
+                "operationId": "2df3a18ed472344c707d1675f279be91",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "estudiante",
+                                    "materia",
+                                    "fecha",
+                                    "estado"
+                                ],
+                                "properties": {
+                                    "estudiante": {
+                                        "type": "string",
+                                        "example": "Juan Pérez"
+                                    },
+                                    "materia": {
+                                        "type": "string",
+                                        "example": "Programación Web"
+                                    },
+                                    "fecha": {
+                                        "type": "string",
+                                        "example": "2026-05-29"
+                                    },
+                                    "estado": {
+                                        "type": "string",
+                                        "example": "Presente"
+                                    },
+                                    "observaciones": {
+                                        "type": "string",
+                                        "example": "Ninguna"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Asistencia creada exitosamente"
+                    },
+                    "400": {
+                        "description": "Datos incompletos o fecha con formato no válido"
+                    },
+                    "500": {
+                        "description": "Error interno del servidor al intentar guardar el registro"
+                    }
+                }
+            }
+        },
+        "/asistencias/{id}": {
+            "get": {
+                "tags": [
+                    "Asistencias"
+                ],
+                "summary": "Buscar una asistencia por su ID",
+                "operationId": "b2c6fe10356a2890069847d813a05700",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID de la asistencia",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Asistencia encontrada"
+                    },
+                    "404": {
+                        "description": "Asistencia no encontrada en la base de datos"
+                    },
+                    "500": {
+                        "description": "Error interno del servidor al procesar la búsqueda"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Asistencias"
+                ],
+                "summary": "Actualizar una asistencia existente",
+                "operationId": "960afd5f62202ba2d8de2d1a4b9a2f31",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID de la asistencia",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "estudiante",
+                                    "materia",
+                                    "fecha",
+                                    "estado"
+                                ],
+                                "properties": {
+                                    "estudiante": {
+                                        "type": "string",
+                                        "example": "Juan Pérez"
+                                    },
+                                    "materia": {
+                                        "type": "string",
+                                        "example": "Programación Web"
+                                    },
+                                    "fecha": {
+                                        "type": "string",
+                                        "example": "2026-05-29"
+                                    },
+                                    "estado": {
+                                        "type": "string",
+                                        "example": "Ausente"
+                                    },
+                                    "observaciones": {
+                                        "type": "string",
+                                        "example": "Justificado por salud"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Asistencia actualizada exitosamente"
+                    },
+                    "400": {
+                        "description": "Datos incompletos o fecha con formato no válido"
+                    },
+                    "404": {
+                        "description": "Asistencia no encontrada para actualizar"
+                    },
+                    "500": {
+                        "description": "Error interno del servidor al intentar modificar el registro"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Asistencias"
+                ],
+                "summary": "Eliminar una asistencia por su ID",
+                "operationId": "4f293ae6a0c634b81d68be39583b0a0d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID de la asistencia a eliminar",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Asistencia eliminada exitosamente"
+                    },
+                    "404": {
+                        "description": "Asistencia no encontrada para eliminar"
+                    },
+                    "500": {
+                        "description": "Error interno del servidor al intentar borrar el registro"
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Asistencias",
+            "description": "Asistencias"
+        }
+    ]
+}
