@@ -1,10 +1,11 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Asistencia;
 use Illuminate\Http\Request;
-use OpenApi\Attributes as OA; // <-- Uso de formato nativo de PHP 8.2
+use OpenApi\Attributes as OA;
+
+// <-- Uso de formato nativo de PHP 8.2
 
 #[OA\Info(title: "API de Control de Asistencias - Grupo 7", version: "1.0.0", description: "CRUD de asistencias para el Logro B")]
 #[OA\Server(url: "http://127.0.0.1:8000/api", description: "Servidor Local de API")]
@@ -24,6 +25,7 @@ class AsistenciaController extends Controller
     #[OA\Response(response: 200, description: "Asistencia encontrada")]
     #[OA\Response(response: 404, description: "Asistencia no encontrada en la base de datos")]
     #[OA\Response(response: 500, description: "Error interno del servidor al procesar la búsqueda")]
+
     public function getAsistenciaById($id)
     {
         $asistencia = Asistencia::find($id);
@@ -44,13 +46,14 @@ class AsistenciaController extends Controller
                 new OA\Property(property: "materia", type: "string", example: "Programación Web"),
                 new OA\Property(property: "fecha", type: "string", example: "2026-05-29"),
                 new OA\Property(property: "estado", type: "string", example: "Presente"),
-                new OA\Property(property: "observaciones", type: "string", example: "Ninguna")
+                new OA\Property(property: "observaciones", type: "string", example: "Ninguna"),
             ]
         )
     )]
     #[OA\Response(response: 201, description: "Asistencia creada exitosamente")]
     #[OA\Response(response: 400, description: "Datos incompletos o fecha con formato no válido")]
     #[OA\Response(response: 500, description: "Error interno del servidor al intentar guardar el registro")]
+
     public function createAsistencia(Request $request)
     {
         // Validar la fecha
@@ -65,6 +68,17 @@ class AsistenciaController extends Controller
             // Si es válida, la guardamos bien formateada (Año-Mes-Día)
             $request->fecha = date('Y-m-d', $timestamp);
         }
+
+        if ($request->estado) {
+            // Convierte cualquier cosa (ej: "ausente" o "AUSENTE") en "Ausente"
+            $request->estado = ucfirst(strtolower($request->estado));
+        }
+
+        $estadosPermitidos = ['Presente', 'Ausente', 'Justificado'];
+        if ($request->estado && ! in_array($request->estado, $estadosPermitidos)) {
+            return response()->json(['message' => 'Estado no válido. Debe ser: Presente, Ausente o Justificado'], 400);
+        }
+
         if ($request->estudiante && $request->materia && $request->fecha && $request->estado) {
             $asistencia                = new Asistencia();
             $asistencia->estudiante    = $request->estudiante;
@@ -90,7 +104,7 @@ class AsistenciaController extends Controller
                 new OA\Property(property: "materia", type: "string", example: "Programación Web"),
                 new OA\Property(property: "fecha", type: "string", example: "2026-05-29"),
                 new OA\Property(property: "estado", type: "string", example: "Ausente"),
-                new OA\Property(property: "observaciones", type: "string", example: "Justificado por salud")
+                new OA\Property(property: "observaciones", type: "string", example: "Justificado por salud"),
             ]
         )
     )]
@@ -98,6 +112,7 @@ class AsistenciaController extends Controller
     #[OA\Response(response: 400, description: "Datos incompletos o fecha con formato no válido")]
     #[OA\Response(response: 404, description: "Asistencia no encontrada para actualizar")]
     #[OA\Response(response: 500, description: "Error interno del servidor al intentar modificar el registro")]
+
     public function updateAsistencia(Request $request, $id)
     {
         $asistencia = Asistencia::find($id);
@@ -109,11 +124,19 @@ class AsistenciaController extends Controller
             if ($timestamp === false) {
                 return response()->json(['message' => 'Fecha no válida, debe ser en formato YYYY-MM-DD'], 400);
             }
+
+            $estadoFormateado = ucfirst(strtolower($request->estado));
+
+            $estadosPermitidos = ['Presente', 'Ausente', 'Justificado'];
+            if (! in_array($estadoFormateado, $estadosPermitidos)) {
+                return response()->json(['message' => 'Estado no válido. Debe ser: Presente, Ausente o Justificado'], 400);
+            }
+
             $fechaFormateada           = date('Y-m-d', $timestamp);
             $asistencia->estudiante    = $request->estudiante;
             $asistencia->materia       = $request->materia;
             $asistencia->fecha         = $fechaFormateada;
-            $asistencia->estado        = $request->estado;
+            $asistencia->estado        = $estadoFormateado;
             $asistencia->observaciones = $request->observaciones;
             $asistencia->save();
             return response()->json(['message' => 'Asistencia actualizada exitosamente', 'asistencia' => $asistencia]);
